@@ -4,6 +4,14 @@
  */
 package view;
 
+import java.sql.Date;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import model.DocGia;
+import model.DocGiaDAO;
+
 /**
  *
  * @author ADMIN
@@ -13,8 +21,15 @@ public class QuanLyDocGiaPanel extends javax.swing.JPanel {
     /**
      * Creates new form QuanLyDocGiaPanel
      */
+    private DefaultTableModel model;
+    private DocGiaDAO docGiaDAO = new DocGiaDAO();
+
     public QuanLyDocGiaPanel() {
         initComponents();
+        String[] tieudecot = {"Mã", "Họ tên", "Ngày sinh", "Địa chỉ", "SĐT", "Email"};
+        model = new DefaultTableModel(tieudecot, 0);
+        tblDocGia.setModel(model); //gán model cho tblDocGia
+        loadData();
     }
 
     /**
@@ -33,12 +48,12 @@ public class QuanLyDocGiaPanel extends javax.swing.JPanel {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        txtSDT = new javax.swing.JTextField();
+        txtSoDienThoai = new javax.swing.JTextField();
         jLabel6 = new javax.swing.JLabel();
         txtEmail = new javax.swing.JTextField();
-        dcNgaySinh = new com.toedter.calendar.JDateChooser();
+        txtNgaySinh = new com.toedter.calendar.JDateChooser();
         jScrollPane1 = new javax.swing.JScrollPane();
-        tarDiaChi = new javax.swing.JTextArea();
+        txtDiaChi = new javax.swing.JTextArea();
         jScrollPane2 = new javax.swing.JScrollPane();
         tblDocGia = new javax.swing.JTable();
         pnButton = new javax.swing.JPanel();
@@ -65,17 +80,17 @@ public class QuanLyDocGiaPanel extends javax.swing.JPanel {
 
         jLabel5.setText("Số điện thoại");
 
-        txtSDT.addActionListener(new java.awt.event.ActionListener() {
+        txtSoDienThoai.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                txtSDTActionPerformed(evt);
+                txtSoDienThoaiActionPerformed(evt);
             }
         });
 
         jLabel6.setText("Email");
 
-        tarDiaChi.setColumns(20);
-        tarDiaChi.setRows(5);
-        jScrollPane1.setViewportView(tarDiaChi);
+        txtDiaChi.setColumns(20);
+        txtDiaChi.setRows(5);
+        jScrollPane1.setViewportView(txtDiaChi);
 
         javax.swing.GroupLayout pnThongTinLayout = new javax.swing.GroupLayout(pnThongTin);
         pnThongTin.setLayout(pnThongTinLayout);
@@ -92,7 +107,7 @@ public class QuanLyDocGiaPanel extends javax.swing.JPanel {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(pnThongTinLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                             .addComponent(txtHoTen)
-                            .addComponent(dcNgaySinh, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(txtNgaySinh, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)))
                     .addGroup(pnThongTinLayout.createSequentialGroup()
                         .addGroup(pnThongTinLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
@@ -100,7 +115,7 @@ public class QuanLyDocGiaPanel extends javax.swing.JPanel {
                             .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(12, 12, 12)
                         .addGroup(pnThongTinLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(txtSDT)
+                            .addComponent(txtSoDienThoai)
                             .addComponent(txtEmail))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -114,7 +129,7 @@ public class QuanLyDocGiaPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnThongTinLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(pnThongTinLayout.createSequentialGroup()
-                        .addComponent(dcNgaySinh, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtNgaySinh, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(pnThongTinLayout.createSequentialGroup()
@@ -124,7 +139,7 @@ public class QuanLyDocGiaPanel extends javax.swing.JPanel {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnThongTinLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(txtSDT, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(txtSoDienThoai, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(pnThongTinLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -136,28 +151,58 @@ public class QuanLyDocGiaPanel extends javax.swing.JPanel {
         tblDocGia.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         tblDocGia.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
             },
             new String [] {
-                "Họ tên", "Ngày sinh", "Địa chỉ", "Số điện thoại", "Email"
+                "Mã", "Họ tên", "Ngày sinh", "Địa chỉ", "SĐT", "Email"
             }
         ));
+        tblDocGia.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tblDocGiaMouseClicked(evt);
+            }
+        });
         jScrollPane2.setViewportView(tblDocGia);
 
         pnButton.setBackground(new java.awt.Color(102, 255, 204));
 
         btnSua.setText("Sửa");
+        btnSua.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSuaActionPerformed(evt);
+            }
+        });
 
         btnXoa.setText("Xoá");
+        btnXoa.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnXoaActionPerformed(evt);
+            }
+        });
 
         btnLamMoi.setText("Làm mới");
+        btnLamMoi.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLamMoiActionPerformed(evt);
+            }
+        });
 
         btnTimKiem.setText("Tìm kiếm");
+        btnTimKiem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTimKiemActionPerformed(evt);
+            }
+        });
 
         btnThem.setText("Thêm ");
+        btnThem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnThemActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout pnButtonLayout = new javax.swing.GroupLayout(pnButton);
         pnButton.setLayout(pnButtonLayout);
@@ -220,9 +265,50 @@ public class QuanLyDocGiaPanel extends javax.swing.JPanel {
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void txtSDTActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSDTActionPerformed
+    private void txtSoDienThoaiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSoDienThoaiActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_txtSDTActionPerformed
+    }//GEN-LAST:event_txtSoDienThoaiActionPerformed
+
+    private void tblDocGiaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblDocGiaMouseClicked
+        // TODO add your handling code here:
+        int row = tblDocGia.getSelectedRow();
+        if (row != -1) {
+            txtHoTen.setText(model.getValueAt(row, 1).toString());
+            txtNgaySinh.setDate(Date.valueOf(model.getValueAt(row, 2).toString()));
+            txtDiaChi.setText(model.getValueAt(row, 3).toString());
+            txtSoDienThoai.setText(model.getValueAt(row, 4).toString());
+            txtEmail.setText(model.getValueAt(row, 5).toString());
+        }
+    }//GEN-LAST:event_tblDocGiaMouseClicked
+
+    private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
+        // TODO add your handling code here:
+        themDocGia();
+        loadData();
+    }//GEN-LAST:event_btnThemActionPerformed
+
+    private void btnSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaActionPerformed
+        // TODO add your handling code here:
+        suaDocGia();
+        loadData();
+    }//GEN-LAST:event_btnSuaActionPerformed
+
+    private void btnXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaActionPerformed
+        // TODO add your handling code here:
+        xoaDocGia();
+        loadData();
+    }//GEN-LAST:event_btnXoaActionPerformed
+
+    private void btnLamMoiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLamMoiActionPerformed
+        // TODO add your handling code here:
+        lamMoi();
+        loadData();
+    }//GEN-LAST:event_btnLamMoiActionPerformed
+
+    private void btnTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTimKiemActionPerformed
+        // TODO add your handling code here:
+        timKiem();
+    }//GEN-LAST:event_btnTimKiemActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -231,7 +317,6 @@ public class QuanLyDocGiaPanel extends javax.swing.JPanel {
     private javax.swing.JButton btnThem;
     private javax.swing.JButton btnTimKiem;
     private javax.swing.JButton btnXoa;
-    private com.toedter.calendar.JDateChooser dcNgaySinh;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -242,10 +327,118 @@ public class QuanLyDocGiaPanel extends javax.swing.JPanel {
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JPanel pnButton;
     private javax.swing.JPanel pnThongTin;
-    private javax.swing.JTextArea tarDiaChi;
     private javax.swing.JTable tblDocGia;
+    private javax.swing.JTextArea txtDiaChi;
     private javax.swing.JTextField txtEmail;
     private javax.swing.JTextField txtHoTen;
-    private javax.swing.JTextField txtSDT;
+    private com.toedter.calendar.JDateChooser txtNgaySinh;
+    private javax.swing.JTextField txtSoDienThoai;
     // End of variables declaration//GEN-END:variables
+
+    private void loadData() {
+        model.setRowCount(0);
+        List<DocGia> list = DocGiaDAO.getAll();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        for (DocGia dg : list) {
+            model.addRow(new Object[]{
+                dg.getMaDocGia(), dg.getHoTen(), dg.getNgaySinh(),
+                dg.getDiaChi(), dg.getSoDienThoai(), dg.getEmail()
+            });
+        }
+
+    }
+
+    private void themDocGia() {
+        try {
+            String hoTen = txtHoTen.getText();
+            Date ngaySinh = new Date(txtNgaySinh.getDate().getTime());
+            String diaChi = txtDiaChi.getText();
+            String sdt = txtSoDienThoai.getText();
+            String email = txtEmail.getText();
+            DocGia dg = new DocGia(hoTen, ngaySinh, diaChi, sdt, email);
+            if (docGiaDAO.insertDocGia(dg)) {
+                JOptionPane.showMessageDialog(this, "Thêm thành công");
+                loadData();
+                lamMoi();
+            } else {
+                JOptionPane.showMessageDialog(this, "Thêm thất bại");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi dữ liệu");
+            e.printStackTrace();
+        }
+    }
+
+    private void suaDocGia() {
+        int row = tblDocGia.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Chọn độc giả cần sửa");
+
+            return;
+        }
+        try {
+            int ma = (int) model.getValueAt(row, 0);
+            String hoTen = txtHoTen.getText();
+            Date ngaySinh = new Date(txtNgaySinh.getDate().getTime());
+            String diaChi = txtDiaChi.getText();
+            String sdt = txtSoDienThoai.getText();
+            String email = txtEmail.getText();
+
+            DocGia dg = new DocGia(hoTen, ngaySinh, diaChi, sdt, email);
+            if (docGiaDAO.updateDocGia(dg)) {
+                JOptionPane.showMessageDialog(this, "Cập nhật thành công");
+                loadData();
+            } else {
+                JOptionPane.showMessageDialog(this, "Cập nhật thất bại");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi dữ liệu");
+        }
+    }
+
+    private void xoaDocGia() {
+        int row = tblDocGia.getSelectedRow();
+        if (row == -1) {
+            JOptionPane.showMessageDialog(this, "Chọn độc giả cần xóa");
+            return;
+        }
+
+        try {
+            int ma = (int) model.getValueAt(row, 0);
+            int traloi = JOptionPane.showConfirmDialog(this, "Bạn có muốn xóa độc giả id =" + ma);
+            if (traloi != JOptionPane.YES_OPTION) {
+                return;
+            }
+            if (docGiaDAO.deleteDocGia(ma)) {
+                JOptionPane.showMessageDialog(this, "Xóa thành công");
+                loadData();
+                lamMoi();
+            } else {
+                JOptionPane.showMessageDialog(this, "Xóa thất bại");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi dữ liệu");
+        }
+    }
+
+    private void lamMoi() {
+        txtHoTen.setText("");
+        txtNgaySinh.setDate(txtNgaySinh.getDate());
+        txtDiaChi.setText("");
+        txtSoDienThoai.setText("");
+        txtEmail.setText("");
+    }
+
+    private void timKiem() {
+        String keyword = txtHoTen.getText();
+        List<DocGia> list = docGiaDAO.searchDocGia(keyword);
+        model.setRowCount(0);
+// SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        for (DocGia dg : list) {
+            model.addRow(new Object[]{
+                dg.getMaDocGia(), dg.getHoTen(), dg.getNgaySinh(),
+                dg.getDiaChi(), dg.getSoDienThoai(), dg.getEmail()
+            });
+        }
+    }
 }
